@@ -10,13 +10,6 @@ public class WorkflowService(TodoContext context)
     public async Task<ActionResult<TodoResponse>> TransitState(long todoId, long nextStateId)
     {
 
-        var myQuery = from t in context.TodoItems
-            join s in context.States on t.StateId equals s.Id
-                      where t.Id == todoId
-                      from next in s.Transitions                       
-            where next.Id == nextStateId
-                select next;
-
                      var todoItem = await (from todo in context.TodoItems
             where todo.Id == todoId
             select todo).SingleAsync() ?? throw new KeyNotFoundException();
