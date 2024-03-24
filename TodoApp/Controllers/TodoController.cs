@@ -17,6 +17,12 @@ namespace TodoApp.Controllers;
 public class TodoController(TodoService todoService, WorkflowService wokService) : ControllerBase
 {
 
+    [HttpGet("another")]
+    public ActionResult<IEnumerable<TodoResponse>> GetAnotherItems()
+    {
+        return Ok(todoService.GetTodoItems());
+    }
+
     // GET: api/Todo
     /// <summary>
     /// Get all TodoItems

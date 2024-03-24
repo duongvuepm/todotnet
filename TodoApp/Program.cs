@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<TodoContext>(opt =>
-    opt.UseMySQL("server=localhost;database=my_database;user=root;password=admin"));
+    opt.UseMySQL("server=localhost;database=my_database;user=root;password=tungduong98"));
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
@@ -33,8 +33,10 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-builder.Services.AddSingleton<WorkflowService>();
-builder.Services.AddSingleton<TodoService>();
+builder.Services.AddScoped<TodoContext>();
+builder.Services.AddScoped<WorkflowService>();
+builder.Services.AddScoped<TodoService>();
+builder.Services.AddScoped<StateService>();
 
 builder.Services.AddControllers();
 
