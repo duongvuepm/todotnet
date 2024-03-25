@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TodoApp.Dtos;
+using TodoApp.Middlewares;
 using TodoApp.Models;
 using TodoApp.Services;
 
@@ -14,15 +9,8 @@ namespace TodoApp.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class TodoController(TodoService todoService, WorkflowService wokService) : ControllerBase
+public class TodoController(TodoService todoService, WorkflowService workflowService) : ControllerBase
 {
-
-    [HttpGet("another")]
-    public ActionResult<IEnumerable<TodoResponse>> GetAnotherItems()
-    {
-        return Ok(todoService.GetTodoItems());
-    }
-
     // GET: api/Todo
     /// <summary>
     /// Get all TodoItems
@@ -76,7 +64,7 @@ public class TodoController(TodoService todoService, WorkflowService wokService)
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TodoResponse>> PostTodoItem(TodoDto todoItem)
     {
         return await todoService.PostTodoItem(todoItem);
@@ -87,5 +75,15 @@ public class TodoController(TodoService todoService, WorkflowService wokService)
     public async Task<IActionResult> DeleteTodoItem(long id)
     {
         return await todoService.DeleteTodoItem(id);
+    }
+    
+    [HttpPut("{id}/ChangeState")]
+    [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status404NotFound)]
+    public ActionResult<TodoResponse>TransitState([FromRoute] long id, [FromQuery] long nextStateId)
+    {
+        TodoResponse newTodoState = workflowService.TransitState(id, nextStateId);
+        
+        return CreatedAtAction(nameof(GetTodoItem), new { id = newTodoState.Id }, newTodoState);
     }
 }

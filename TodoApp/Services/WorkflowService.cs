@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoApp.Dtos;
+﻿using TodoApp.Dtos;
 using TodoApp.Exceptions;
 using TodoApp.Models;
 
@@ -8,18 +6,27 @@ namespace TodoApp.Services;
 
 public class WorkflowService(TodoContext context)
 {
-    public async Task<ActionResult<TodoResponse>> TransitState(long todoId, long nextStateId)
+    public TodoResponse TransitState(long todoId, long nextStateId)
     {
-        var todoItem = await (from todo in context.TodoItems
+        var todoItem = (from todo in context.TodoItems
             where todo.Id == todoId
-            select todo).SingleAsync() ?? throw new ResourceNotFoundException($"Todo item with ID {todoId} not found");
+            select todo).Single() ?? throw new ResourceNotFoundException($"Todo item with ID {todoId} not found");
+        
+        var currentNext = from s in context.States
+            join s2 in context.States on s.Id equals s2.PreviousStateId
+            select new { current = s, next = s2 };
 
-        var nextState = await (from state in context.States
-            where state.Id == nextStateId
-            select state).SingleAsync() ?? throw new ResourceNotFoundException($"State with ID {nextStateId} not found");
+        var todoNext = from t in context.TodoItems
+            join s in currentNext on t.StateId equals s.current.Id
+            where t.Id == todoId && s.next.Id == nextStateId
+            select s.next.Id;
+        
+        if (!todoNext.Any())
+            throw new InvalidStateTransitionException(
+                $"Cannot transition item {todoId} to state {nextStateId}");
 
-        todoItem.StateId = nextState.Id;
-        await context.SaveChangesAsync();
+        todoItem.StateId = todoNext.Single();
+        context.SaveChanges();
 
         return new TodoResponse(todoId, todoItem.Name ?? "", nextStateId);
     }

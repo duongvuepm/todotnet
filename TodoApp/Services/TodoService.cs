@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Dtos;
 using TodoApp.Models;
@@ -10,8 +9,8 @@ public class TodoService(TodoContext context)
 {
     public async Task<ActionResult<IEnumerable<TodoResponse>>> GetTodoItems()
     {
-        return await 
-            (from t in context.TodoItems 
+        return await
+            (from t in context.TodoItems
                 select new TodoResponse(t.Id, t.Name ?? "", t.StateId))
             .ToListAsync();
     }
@@ -30,7 +29,6 @@ public class TodoService(TodoContext context)
 
     public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
     {
-
         context.Entry(todoItem).State = EntityState.Modified;
 
         await context.SaveChangesAsync();
@@ -39,19 +37,13 @@ public class TodoService(TodoContext context)
 
     public async Task<ActionResult<TodoResponse>> PostTodoItem(TodoDto newTodo)
     {
-
-        var stateId = await 
-            (from s in context.States
-                where s.IsDefault
-                select s.Id)
-            .Take(1)
-            .DefaultIfEmpty(0)
-            .SingleAsync();
+        long stateId = await context.States.Where(s => s.IsDefault).Select(s => s.Id).SingleAsync();
 
         TodoItem newTodoItem = new()
         {
             Name = newTodo.Name,
-            StateId = stateId
+            StateId = stateId,
+            CreatedTimestamp = DateTime.Now
         };
 
         var newTodoId = context.TodoItems.Add(newTodoItem).Entity.Id;

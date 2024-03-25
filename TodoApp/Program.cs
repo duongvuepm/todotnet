@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using TodoApp.Middlewares;
 using TodoApp.Models;
 using TodoApp.Services;
 
@@ -70,7 +71,7 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .WithOpenApi();
-
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 app.Run();
 
