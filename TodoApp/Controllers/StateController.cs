@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoApp.Dtos;
+using TodoApp.Exceptions;
 using TodoApp.Services;
 
 namespace TodoApp.Controllers;
@@ -7,12 +9,12 @@ namespace TodoApp.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class StateController(StateService stateService) : ControllerBase
+public class StateController(StateService stateService, TransitionService transitionService) : ControllerBase
 {
     [HttpGet]
-    public ActionResult<IEnumerable<StateResponse>> GetAllStates()
+    public ActionResult<IEnumerable<StateResponse>> GetAllStates([FromQuery][BindRequired] long boardId)
     {
-        return Ok(stateService.GetAllStates());
+        return Ok(stateService.GetAllStates(boardId));
     }
 
     [HttpGet("{stateId}")]
@@ -34,6 +36,15 @@ public class StateController(StateService stateService) : ControllerBase
     {
         StateResponse updatedState = stateService.UpdateState(stateDto, stateId);
 
+        return CreatedAtAction(nameof(GetState), new { stateId = updatedState.Id }, updatedState);
+    }
+
+    [HttpPut("{stateId}/AddTransition")]
+    public ActionResult<StateResponse> AddTransition([FromBody] TransitionDto addTransition, [FromRoute] long stateId)
+    {
+        if (addTransition.ToState == stateId) throw new InvalidStateTransitionException("Cannot transition to the same state");
+
+        StateResponse updatedState = transitionService.AddTransition(stateId, addTransition.ToState);
         return CreatedAtAction(nameof(GetState), new { stateId = updatedState.Id }, updatedState);
     }
 }

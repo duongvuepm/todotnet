@@ -1,6 +1,6 @@
 ﻿namespace TodoApp.Dtos;
 
-public record StateDto(string? Name, bool IsDefault, long? ParentStateId)
+public record StateDto(string? Name, bool IsDefault, long BoardId, long? ParentStateId)
 {
     
 };

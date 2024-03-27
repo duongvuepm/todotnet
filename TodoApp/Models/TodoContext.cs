@@ -6,8 +6,9 @@ public class TodoContext : DbContext
 {
     public DbSet<Item> TodoItems { get; set; } = null!;
     public DbSet<State> States { get; set; } = null!;
-    
     public DbSet<Board> Boards { get; set; } = null!;
+    public DbSet<Transition> Transitions { get; set; } = null!;
+
     public string DbPath { get; }
     
     public TodoContext(DbContextOptions<TodoContext> options) : base(options)
@@ -33,5 +34,15 @@ public class TodoContext : DbContext
             .HasMany(b => b.States)
             .WithOne(s => s.Board)
             .HasForeignKey(s => s.BoardId);
+
+        modelBuilder.Entity<Transition>()
+            .HasOne(t => t.FromState)
+            .WithMany()
+            .HasForeignKey(t => t.FromStateId);
+
+        modelBuilder.Entity<Transition>()
+            .HasOne(t => t.ToState)
+            .WithMany()
+            .HasForeignKey(t => t.ToStateId);
     }
 }

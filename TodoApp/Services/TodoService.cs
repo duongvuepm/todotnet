@@ -1,30 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Dtos;
+using TodoApp.Exceptions;
 using TodoApp.Models;
 
 namespace TodoApp.Services;
 
 public class TodoService(TodoContext context)
 {
-    public async Task<ActionResult<IEnumerable<TodoResponse>>> GetTodoItems()
+    public async Task<ActionResult<IEnumerable<ItemResponse>>> GetTodoItems(long boardId)
     {
         return await
             (from t in context.TodoItems
-                select new TodoResponse(t.Id, t.Name ?? "", t.StateId))
+                where t.BoardId == boardId
+                select new ItemResponse(t.Id, t.Name ?? "", t.StateId))
             .ToListAsync();
     }
 
-    public async Task<ActionResult<TodoResponse>> GetTodoItem(long id)
+    public async Task<ActionResult<ItemResponse>> GetTodoItem(long id)
     {
-        var todoItem = await context.TodoItems.FindAsync(id);
+        var query = from item in context.TodoItems
+            where item.Id == id
+            select new ItemResponse(item.Id, item.Name ?? "", item.StateId);
 
-        if (todoItem == null)
-        {
-            throw new KeyNotFoundException();
-        }
 
-        return new TodoResponse(todoItem.Id, todoItem.Name ?? "", todoItem.StateId);
+        return await query.SingleOrDefaultAsync() ?? throw new ResourceNotFoundException($"Item with id {id} not found");
     }
 
     public async Task<IActionResult> PutTodoItem(long id, Item item)
@@ -35,21 +35,20 @@ public class TodoService(TodoContext context)
         return new OkResult();
     }
 
-    public async Task<ActionResult<TodoResponse>> PostTodoItem(TodoDto newTodo)
+    public async Task<ActionResult<ItemResponse>> PostTodoItem(ItemDto newItemDto)
     {
         long stateId = await context.States.Where(s => s.IsDefault).Select(s => s.Id).SingleAsync();
 
         Item newItem = new()
         {
-            Name = newTodo.Name,
+            Name = newItemDto.Name,
             StateId = stateId,
+            BoardId = newItemDto.BoardId,
             CreatedTimestamp = DateTime.Now
         };
 
-        var newTodoId = context.TodoItems.Add(newItem).Entity.Id;
-        await context.SaveChangesAsync();
-
-        return new CreatedAtActionResult(nameof(GetTodoItem), "Todo", new { id = newTodoId }, newTodo);
+        var persistedItem = context.TodoItems.Add(newItem).Entity;
+        return await context.SaveChangesAsync().ContinueWith(_ => GetTodoItem(persistedItem.Id)).Result;
     }
 
     public async Task<IActionResult> DeleteTodoItem(long id)

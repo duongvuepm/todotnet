@@ -6,28 +6,29 @@ namespace TodoApp.Services;
 
 public class WorkflowService(TodoContext context)
 {
-    public TodoResponse TransitState(long todoId, long nextStateId)
+    public ItemResponse TransitStateOtherWay(long todoId, long toStateId)
     {
         var todoItem = (from todo in context.TodoItems
             where todo.Id == todoId
             select todo).Single() ?? throw new ResourceNotFoundException($"Todo item with ID {todoId} not found");
-        
-        var currentNext = from s in context.States
-            join s2 in context.States on s.Id equals s2.PreviousStateId
-            select new { current = s, next = s2 };
 
-        var todoNext = from t in context.TodoItems
-            join s in currentNext on t.StateId equals s.current.Id
-            where t.Id == todoId && s.next.Id == nextStateId
-            select s.next.Id;
-        
-        if (!todoNext.Any())
+        var transitionQuery = from cr in context.States
+            join tr in context.Transitions on cr.Id equals tr.FromStateId
+            join next in context.States on tr.ToStateId equals next.Id
+            where next.Id == toStateId && cr.Id == todoItem.StateId
+            select new {cr, next};
+
+        if (transitionQuery.Any())
+        {
+            todoItem.StateId = toStateId;
+            context.SaveChanges();
+
+            return new ItemResponse(todoId, todoItem.Name ?? "", toStateId);
+        }
+        else
+        {
             throw new InvalidStateTransitionException(
-                $"Cannot transition item {todoId} to state {nextStateId}");
-
-        todoItem.StateId = todoNext.Single();
-        context.SaveChanges();
-
-        return new TodoResponse(todoId, todoItem.Name ?? "", nextStateId);
+                               $"Cannot transition item {todoId} to state {toStateId}");
+        }
     }
 }

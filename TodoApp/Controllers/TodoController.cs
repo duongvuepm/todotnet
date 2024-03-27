@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoApp.Dtos;
 using TodoApp.Middlewares;
 using TodoApp.Models;
@@ -17,9 +18,9 @@ public class TodoController(TodoService todoService, WorkflowService workflowSer
     /// </summary>
     /// <returns> A list of TodoItems</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TodoResponse>>> GetTodoItems()
+    public async Task<ActionResult<IEnumerable<ItemResponse>>> GetTodoItems([FromQuery][BindRequired] long boardId)
     {
-        return await todoService.GetTodoItems();
+        return await todoService.GetTodoItems(boardId);
     }
 
     // GET: api/Todo/5
@@ -29,7 +30,7 @@ public class TodoController(TodoService todoService, WorkflowService workflowSer
     /// <param name="id"></param>
     /// <returns>An TodoItem with specified ID</returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoResponse>> GetTodoItem(long id)
+    public async Task<ActionResult<ItemResponse>> GetTodoItem(long id)
     {
         return await todoService.GetTodoItem(id);
     }
@@ -65,7 +66,7 @@ public class TodoController(TodoService todoService, WorkflowService workflowSer
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TodoResponse>> PostTodoItem(TodoDto todoItem)
+    public async Task<ActionResult<ItemResponse>> PostTodoItem(ItemDto todoItem)
     {
         return await todoService.PostTodoItem(todoItem);
     }
@@ -80,10 +81,10 @@ public class TodoController(TodoService todoService, WorkflowService workflowSer
     [HttpPut("{id}/ChangeState")]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status404NotFound)]
-    public ActionResult<TodoResponse>TransitState([FromRoute] long id, [FromQuery] long nextStateId)
+    public ActionResult<ItemResponse>TransitState([FromRoute] long id, [FromQuery] long nextStateId)
     {
-        TodoResponse newTodoState = workflowService.TransitState(id, nextStateId);
+        ItemResponse newItemState = workflowService.TransitStateOtherWay(id, nextStateId);
         
-        return CreatedAtAction(nameof(GetTodoItem), new { id = newTodoState.Id }, newTodoState);
+        return CreatedAtAction(nameof(GetTodoItem), new { id = newItemState.Id }, newItemState);
     }
 }

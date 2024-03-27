@@ -16,7 +16,7 @@ public class BoardService(TodoContext dbContext)
                 b.Id,
                 b.Name,
                 b.Description,
-                ItemIds = from bi in boardItems select bi.Id
+                ItemIds = from bi in boardItems select new ItemResponse(bi.Id, bi.Name ?? "", bi.StateId)
             };
         
         var board = testQuery.Single() ?? throw new ResourceNotFoundException($"Board with ID {id} not found");

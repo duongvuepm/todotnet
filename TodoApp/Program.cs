@@ -29,7 +29,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
     
-    // using System.Reflection;
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
@@ -39,6 +38,7 @@ builder.Services.AddScoped<WorkflowService>();
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<StateService>();
 builder.Services.AddScoped<BoardService>();
+builder.Services.AddScoped<TransitionService>();
 
 builder.Services.AddControllers();
 
