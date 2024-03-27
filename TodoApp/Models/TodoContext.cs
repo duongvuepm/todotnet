@@ -4,8 +4,10 @@ namespace TodoApp.Models;
 
 public class TodoContext : DbContext
 {
-    public DbSet<TodoItem> TodoItems { get; set; } = null!;
+    public DbSet<Item> TodoItems { get; set; } = null!;
     public DbSet<State> States { get; set; } = null!;
+    
+    public DbSet<Board> Boards { get; set; } = null!;
     public string DbPath { get; }
     
     public TodoContext(DbContextOptions<TodoContext> options) : base(options)
@@ -21,5 +23,15 @@ public class TodoContext : DbContext
             .HasMany(s => s.TodoItems)
             .WithOne(t => t.State)
             .HasForeignKey(t => t.StateId);
+
+        modelBuilder.Entity<Board>()
+            .HasMany(b => b.Items)
+            .WithOne(t => t.Board)
+            .HasForeignKey(t => t.BoardId);
+
+        modelBuilder.Entity<Board>()
+            .HasMany(b => b.States)
+            .WithOne(s => s.Board)
+            .HasForeignKey(s => s.BoardId);
     }
 }

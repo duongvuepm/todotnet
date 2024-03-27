@@ -38,6 +38,7 @@ builder.Services.AddScoped<TodoContext>();
 builder.Services.AddScoped<WorkflowService>();
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<StateService>();
+builder.Services.AddScoped<BoardService>();
 
 builder.Services.AddControllers();
 

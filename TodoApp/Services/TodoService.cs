@@ -27,9 +27,9 @@ public class TodoService(TodoContext context)
         return new TodoResponse(todoItem.Id, todoItem.Name ?? "", todoItem.StateId);
     }
 
-    public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
+    public async Task<IActionResult> PutTodoItem(long id, Item item)
     {
-        context.Entry(todoItem).State = EntityState.Modified;
+        context.Entry(item).State = EntityState.Modified;
 
         await context.SaveChangesAsync();
         return new OkResult();
@@ -39,14 +39,14 @@ public class TodoService(TodoContext context)
     {
         long stateId = await context.States.Where(s => s.IsDefault).Select(s => s.Id).SingleAsync();
 
-        TodoItem newTodoItem = new()
+        Item newItem = new()
         {
             Name = newTodo.Name,
             StateId = stateId,
             CreatedTimestamp = DateTime.Now
         };
 
-        var newTodoId = context.TodoItems.Add(newTodoItem).Entity.Id;
+        var newTodoId = context.TodoItems.Add(newItem).Entity.Id;
         await context.SaveChangesAsync();
 
         return new CreatedAtActionResult(nameof(GetTodoItem), "Todo", new { id = newTodoId }, newTodo);

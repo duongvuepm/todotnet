@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TodoApp.Models;
 
 [Table("TodoItems")]
-public class TodoItem
+public class Item
 {
     [Key]
     public long Id { get; set; }
@@ -23,4 +23,9 @@ public class TodoItem
     public State State { get; set; } = null!;
 
     [ForeignKey("state_id")] public long StateId { get; set; }
+    
+    public Board Board { get; set; }
+    
+    [Column("board_id")]
+    [ForeignKey("board_id")] public long? BoardId { get; set; }
 }
