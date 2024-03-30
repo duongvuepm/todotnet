@@ -10,7 +10,7 @@ namespace TodoApp.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class TodoController(TodoService todoService, WorkflowService workflowService) : ControllerBase
+public class TodoController([FromKeyedServices("ItemService")] ITodoItemService todoService, WorkflowService workflowService) : ControllerBase
 {
     // GET: api/Todo
     /// <summary>
@@ -20,7 +20,8 @@ public class TodoController(TodoService todoService, WorkflowService workflowSer
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ItemResponse>>> GetTodoItems([FromQuery][BindRequired] long boardId)
     {
-        return await todoService.GetTodoItems(boardId);
+        return await todoService.GetTodoItems(boardId)
+            .ContinueWith(res => Ok(res.Result));
     }
 
     // GET: api/Todo/5

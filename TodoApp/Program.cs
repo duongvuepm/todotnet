@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using TodoApp.Middlewares;
 using TodoApp.Models;
+using TodoApp.Repositories;
 using TodoApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,10 +36,18 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<TodoContext>();
 builder.Services.AddScoped<WorkflowService>();
-builder.Services.AddScoped<TodoService>();
+builder.Services.AddKeyedScoped<ITodoItemService, TodoService>("TodoService");
+builder.Services.AddKeyedScoped<ITodoItemService, ItemService>("ItemService");
+builder.Services.AddScoped<ItemService>();
+
 builder.Services.AddScoped<StateService>();
 builder.Services.AddScoped<BoardService>();
 builder.Services.AddScoped<TransitionService>();
+
+builder.Services.AddKeyedScoped<IRepository<Item, long>, ItemRepository>("ItemRepository");
+builder.Services.AddKeyedScoped<IRepository<Board, long>, BoardRepository>("BoardRepository");
+builder.Services.AddKeyedScoped<IRepository<State, long>, StateRepository>("StateRepository");
+builder.Services.AddKeyedScoped<IRepository<Transition, long>, TransitionRepository>("TransitionRepository");
 
 builder.Services.AddControllers();
 

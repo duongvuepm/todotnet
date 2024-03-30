@@ -6,9 +6,9 @@ using TodoApp.Models;
 
 namespace TodoApp.Services;
 
-public class TodoService(TodoContext context)
+public class TodoService(TodoContext context) : ITodoItemService
 {
-    public async Task<ActionResult<IEnumerable<ItemResponse>>> GetTodoItems(long boardId)
+    public async Task<IEnumerable<ItemResponse>> GetTodoItems(long boardId)
     {
         return await
             (from t in context.TodoItems
@@ -17,7 +17,7 @@ public class TodoService(TodoContext context)
             .ToListAsync();
     }
 
-    public async Task<ActionResult<ItemResponse>> GetTodoItem(long id)
+    public async Task<ItemResponse> GetTodoItem(long id)
     {
         var query = from item in context.TodoItems
             where item.Id == id
@@ -35,7 +35,7 @@ public class TodoService(TodoContext context)
         return new OkResult();
     }
 
-    public async Task<ActionResult<ItemResponse>> PostTodoItem(ItemDto newItemDto)
+    public async Task<ItemResponse> PostTodoItem(ItemDto newItemDto)
     {
         long stateId = await context.States.Where(s => s.IsDefault).Select(s => s.Id).SingleAsync();
 
