@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using TodoApp.Middlewares;
@@ -32,9 +33,38 @@ builder.Services.AddSwaggerGen(c =>
     
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
 });
 
+// builder.Services.AddProblemDetails();
+// builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+    .AddBearerToken(IdentityConstants.BearerScheme);
+    // .AddIdentityCookies();
+builder.Services.AddAuthorizationBuilder();
+builder.Services.AddDbContext<AuthContext>(opt =>
+    opt.UseMySQL("server=localhost;database=my_database;user=root;password=tungduong98"));
+builder.Services.AddIdentityCore<MyUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AuthContext>()
+    .AddApiEndpoints();
+
 builder.Services.AddScoped<TodoContext>();
+builder.Services.AddScoped<AuthContext>();
 builder.Services.AddScoped<WorkflowService>();
 builder.Services.AddKeyedScoped<ITodoItemService, TodoService>("TodoService");
 builder.Services.AddKeyedScoped<ITodoItemService, ItemService>("ItemService");
@@ -43,6 +73,7 @@ builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<StateService>();
 builder.Services.AddScoped<BoardService>();
 builder.Services.AddScoped<TransitionService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddKeyedScoped<IRepository<Item, long>, ItemRepository>("ItemRepository");
 builder.Services.AddKeyedScoped<IRepository<Board, long>, BoardRepository>("BoardRepository");
@@ -52,6 +83,8 @@ builder.Services.AddKeyedScoped<IRepository<Transition, long>, TransitionReposit
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.MapIdentityApi<MyUser>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

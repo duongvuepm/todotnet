@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Dtos;
 using TodoApp.Services;
@@ -11,12 +12,14 @@ public class BoardController(BoardService boardService) : ControllerBase
 {
 
     [HttpGet("{id}")]
+    [Authorize("Admin")]
     public ActionResult<BoardResponse> GetBoard(long id)
     {
         return Ok(boardService.GetBoard(id));
     }
     
     [HttpPost]
+    [Authorize("Admin")]
     public ActionResult<BoardResponse> CreateBoard([FromBody] BoardDto boardDto)
     {
         var createdBoar = boardService.CreateBoard(boardDto);
