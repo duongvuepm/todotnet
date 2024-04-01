@@ -1,28 +1,23 @@
 ﻿using TodoApp.Dtos;
 using TodoApp.Exceptions;
 using TodoApp.Models;
+using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class BoardService(TodoContext dbContext)
+public class BoardService([FromKeyedServices("BoardRepository")] IRepository<Board, long> boardRepository)
 {
     public BoardResponse GetBoard(long id)
     {
-        var testQuery = from b in dbContext.Boards
-            join i in dbContext.TodoItems on b.Id equals i.BoardId into boardItems
-            where b.Id == id
-            select new
+        return boardRepository.GetByIdAsync(id)
+            .ContinueWith(res =>
             {
-                b.Id,
-                b.Name,
-                b.Description,
-                ItemIds = from bi in boardItems select new ItemResponse(bi.Id, bi.Name ?? "", bi.StateId)
-            };
-        
-        var board = testQuery.Single() ?? throw new ResourceNotFoundException($"Board with ID {id} not found");
-
-        return new BoardResponse(board.Id, board.Name, board.Description, board.ItemIds.ToList());
-
+                var board = res.Result;
+                return new BoardResponse(board.Id, board.Name, board.Description ?? "",
+                    board.Items.Select(i => new ItemResponse(i.Id, i.Name ?? "", i.StateId)).ToList()
+                );
+            })
+            .Result;
     }
 
     public BoardResponse CreateBoard(BoardDto boardDto)
@@ -32,10 +27,9 @@ public class BoardService(TodoContext dbContext)
             Name = boardDto.Name,
             Description = boardDto.Description ?? ""
         };
+
+        Board createdBoard = boardRepository.Create(newBoard);
         
-        dbContext.Boards.Add(newBoard);
-        dbContext.SaveChanges();
-        
-        return GetBoard(newBoard.Id);
+        return GetBoard(createdBoard.Id);
     }
 }

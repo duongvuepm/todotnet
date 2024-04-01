@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -50,12 +51,17 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// builder.Services.AddProblemDetails();
-// builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
     .AddBearerToken(IdentityConstants.BearerScheme);
-    // .AddIdentityCookies();
 builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Over18", policy =>
+    {
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+});
 builder.Services.AddDbContext<AuthContext>(opt =>
     opt.UseMySQL("server=localhost;database=my_database;user=root;password=tungduong98"));
 builder.Services.AddIdentityCore<MyUser>()
@@ -73,12 +79,13 @@ builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<StateService>();
 builder.Services.AddScoped<BoardService>();
 builder.Services.AddScoped<TransitionService>();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 
 builder.Services.AddKeyedScoped<IRepository<Item, long>, ItemRepository>("ItemRepository");
 builder.Services.AddKeyedScoped<IRepository<Board, long>, BoardRepository>("BoardRepository");
 builder.Services.AddKeyedScoped<IRepository<State, long>, StateRepository>("StateRepository");
 builder.Services.AddKeyedScoped<IRepository<Transition, long>, TransitionRepository>("TransitionRepository");
+builder.Services.AddKeyedScoped<IRepository<MyUser, string>, UserRepository>("UserRepository");
 
 builder.Services.AddControllers();
 
