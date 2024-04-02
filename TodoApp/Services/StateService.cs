@@ -4,8 +4,12 @@ using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class StateService(IStateRepository stateRepository, [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository)
+public class StateService(
+    IStateRepository stateRepository,
+    [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository)
 {
+    private readonly ILogger<StateService> _logger = new LoggerFactory().CreateLogger<StateService>();
+
     public IEnumerable<StateResponse> GetAllStates(long boardId)
     {
         return stateRepository.GetAllStates(boardId)
@@ -27,6 +31,8 @@ public class StateService(IStateRepository stateRepository, [FromKeyedServices("
 
     public StateResponse CreateState(StateDto stateRequest)
     {
+        Console.WriteLine("Creating state");
+        _logger.LogInformation("Creating state");
         var state = new State
         {
             Name = stateRequest.Name ?? "",
@@ -36,12 +42,16 @@ public class StateService(IStateRepository stateRepository, [FromKeyedServices("
 
         State persistedState = stateRepository.Create(state);
 
-        if (stateRequest.ParentStateId is long fromStateId)
+        Console.WriteLine($"State {persistedState.Id} created");
+        _logger.LogInformation($"State {persistedState.Id} created");
+
+        if (stateRequest.Transition != null)
         {
             transitionRepository.Create(new Transition
             {
-                FromStateId = fromStateId,
-                ToStateId = persistedState.Id
+                FromStateId = stateRequest.Transition.ParentStateId,
+                ToStateId = persistedState.Id,
+                RoleRequired = stateRequest.Transition.RoleRequired
             });
         }
 

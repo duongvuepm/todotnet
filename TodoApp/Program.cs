@@ -18,10 +18,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<TodoContext>(opt =>
-    opt.UseMySQL("server=localhost;database=my_database;user=root;password=admin"));
+    opt.UseMySQL(builder.Configuration["Database:Connection"]));
 
 builder.Services.AddDbContext<AuthContext>(opt =>
-    opt.UseMySQL("server=localhost;database=my_database;user=root;password=admin"));
+    opt.UseMySQL(builder.Configuration["Database:Connection"]));
 builder.Services.AddIdentityCore<MyUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AuthContext>()
@@ -95,7 +95,6 @@ builder.Services.AddKeyedScoped<IRepository<Board, long>, BoardRepository>("Boar
 builder.Services.AddKeyedScoped<IRepository<State, long>, StateRepository>("StateRepository");
 builder.Services.AddScoped<IStateRepository, StateRepository>();
 builder.Services.AddKeyedScoped<IRepository<Transition, long>, TransitionRepository>("TransitionRepository");
-builder.Services.AddKeyedScoped<IRepository<MyUser, string>, UserRepository>("UserRepository");
 
 builder.Services.AddControllers();
 

@@ -14,9 +14,11 @@ public interface IRepository<TType, TId> : IQueryRepository<TType>
     {
         return Task.Factory.StartNew(GetAll);
     }
-    
+
     Task<TType> GetByIdAsync(TId id)
     {
         return Task.Run(() => GetById(id));
     }
+
+    IQueryable<TType> Query(Func<IQueryable<TType>, IQueryable<TType>> query);
 }

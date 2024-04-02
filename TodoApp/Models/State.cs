@@ -19,11 +19,12 @@ public class State
     public bool IsDefault { get; set; }
 
     public virtual ICollection<Item> TodoItems { get; set; } = new List<Item>();
-    
+
     public virtual Board Board { get; set; }
-    
+
     [Column("board_id")]
-    [ForeignKey("board_id")] public long? BoardId { get; set; }
+    [ForeignKey("board_id")]
+    public long? BoardId { get; set; }
 
     public virtual ICollection<Transition> Transitions { get; set; } = new List<Transition>();
 }

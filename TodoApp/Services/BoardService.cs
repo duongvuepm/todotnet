@@ -28,7 +28,7 @@ public class BoardService([FromKeyedServices("BoardRepository")] IRepository<Boa
         };
 
         Board createdBoard = boardRepository.Create(newBoard);
-        
+
         return GetBoard(createdBoard.Id);
     }
 }

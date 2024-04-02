@@ -11,7 +11,9 @@ namespace TodoApp.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class TodoController([FromKeyedServices("ItemService")] ITodoItemService todoService, WorkflowService workflowService) : ControllerBase
+public class TodoController(
+    [FromKeyedServices("ItemService")] ITodoItemService todoService,
+    WorkflowService workflowService) : ControllerBase
 {
     // GET: api/Todo
     /// <summary>
@@ -19,7 +21,7 @@ public class TodoController([FromKeyedServices("ItemService")] ITodoItemService 
     /// </summary>
     /// <returns> A list of TodoItems</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ItemResponse>>> GetTodoItems([FromQuery][BindRequired] long boardId)
+    public async Task<ActionResult<IEnumerable<ItemResponse>>> GetTodoItems([FromQuery] [BindRequired] long boardId)
     {
         return await todoService.GetTodoItems(boardId)
             .ContinueWith(res => Ok(res.Result));
@@ -79,16 +81,16 @@ public class TodoController([FromKeyedServices("ItemService")] ITodoItemService 
     {
         return await todoService.DeleteTodoItem(id);
     }
-    
+
     [HttpPut("{id}/ChangeState"), Authorize]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status404NotFound)]
-    public ActionResult<ItemResponse>TransitState([FromRoute] long id, [FromQuery] long nextStateId)
+    public ActionResult<ItemResponse> TransitState([FromRoute] long id, [FromQuery] long nextStateId)
     {
         string role = User.FindFirstValue(ClaimTypes.Role) ?? throw new UnauthorizedAccessException("Role not found");
 
         ItemResponse newItemState = workflowService.TransitState(id, nextStateId, role);
-        
+
         return CreatedAtAction(nameof(GetTodoItem), new { id = newItemState.Id }, newItemState);
     }
 }

@@ -6,7 +6,9 @@ using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class ItemService([FromKeyedServices("ItemRepository")] IRepository<Item, long> itemRepository, [FromKeyedServices("StateRepository")] IRepository<State, long> stateRepository) : ITodoItemService
+public class ItemService(
+    [FromKeyedServices("ItemRepository")] IRepository<Item, long> itemRepository,
+    [FromKeyedServices("StateRepository")] IRepository<State, long> stateRepository) : ITodoItemService
 {
     public async Task<IEnumerable<ItemResponse>> GetTodoItems(long boardId)
     {

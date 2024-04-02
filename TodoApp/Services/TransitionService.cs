@@ -6,7 +6,10 @@ using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class TransitionService(IStateRepository stateRepository, [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository, RoleManager<IdentityRole> roleManager)
+public class TransitionService(
+    IStateRepository stateRepository,
+    [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository,
+    RoleManager<IdentityRole> roleManager)
 {
     public async Task<StateResponse> AddTransition(long fromState, long toState, string roleRequired)
     {
@@ -16,16 +19,16 @@ public class TransitionService(IStateRepository stateRepository, [FromKeyedServi
             where tr.FromStateId == fromState && tr.ToStateId == toState
             select tr);
 
-        var checkStateRequestTest = stateRepository.Query(q => from s in q
+        var checkStateRequest = stateRepository.Query(q => from s in q
             where s.Id == fromState || s.Id == toState
             select s);
 
         if (transitionQuery.Any())
         {
             throw new ResourceAlreadyExistException($"Transition from {fromState} to {toState} already exists");
-        } 
+        }
 
-        if (checkStateRequestTest.Count() != 2)
+        if (checkStateRequest.Count() != 2)
         {
             throw new ResourceNotFoundException("At least one state not found");
         }
@@ -33,9 +36,11 @@ public class TransitionService(IStateRepository stateRepository, [FromKeyedServi
         Transition transition = new()
         {
             FromStateId = fromState,
-            ToStateId = toState
+            ToStateId = toState,
+            RoleRequired = roleRequired
         };
 
+        Console.WriteLine("saving transition");
         transitionRepository.Create(transition);
 
         return await stateRepository.GetByIdAsync(fromState)
@@ -47,7 +52,7 @@ public class TransitionService(IStateRepository stateRepository, [FromKeyedServi
             });
     }
 
-    public async Task<StateResponse> UpdateTransition(long transitionId, long toState, string roleRequired)
+    public async Task<StateResponse> UpdateTransition(long transitionId, long? toState, string? roleRequired)
     {
         CheckRoleRequired(roleRequired);
 
@@ -55,8 +60,8 @@ public class TransitionService(IStateRepository stateRepository, [FromKeyedServi
             .ContinueWith(res =>
             {
                 Transition transition = res.Result;
-                transition.RoleRequired = roleRequired;
-                transition.ToStateId = toState;
+                transition.RoleRequired = roleRequired ?? transition.RoleRequired;
+                transition.ToStateId = toState ?? transition.ToStateId;
 
                 return transitionRepository.Update(transition);
             })
@@ -75,6 +80,7 @@ public class TransitionService(IStateRepository stateRepository, [FromKeyedServi
 
     private async void CheckRoleRequired(string roleRequired)
     {
+        Console.WriteLine("Checking role");
         var role = await roleManager.FindByNameAsync(roleRequired);
         if (role == null)
         {

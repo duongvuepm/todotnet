@@ -22,16 +22,26 @@ public class BoardRepository(TodoContext dbContext) : IRepository<Board, long>
 
     public Board Create(Board entity)
     {
-        return dbContext.Boards.Add(entity).Entity;
+        Board newBoard = dbContext.Boards.Add(entity).Entity;
+        dbContext.SaveChanges();
+        return newBoard;
     }
 
     public Board Update(Board entity)
     {
-        return dbContext.Boards.Update(entity).Entity;
+        Board updatedBoard = dbContext.Boards.Add(entity).Entity;
+        dbContext.SaveChanges();
+        return updatedBoard;
     }
 
     public void Delete(long id)
     {
         dbContext.Boards.Where(b => b.Id == id).ExecuteDelete();
+        dbContext.SaveChanges();
+    }
+
+    public IQueryable<Board> Query(Func<IQueryable<Board>, IQueryable<Board>> query)
+    {
+        return query(dbContext.Boards);
     }
 }

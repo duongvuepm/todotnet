@@ -24,7 +24,8 @@ public class TodoService(TodoContext context) : ITodoItemService
             select new ItemResponse(item.Id, item.Name ?? "", item.StateId);
 
 
-        return await query.SingleOrDefaultAsync() ?? throw new ResourceNotFoundException($"Item with id {id} not found");
+        return await query.SingleOrDefaultAsync() ??
+               throw new ResourceNotFoundException($"Item with id {id} not found");
     }
 
     public async Task<IActionResult> PutTodoItem(long id, Item item)

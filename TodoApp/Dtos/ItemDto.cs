@@ -1,3 +1,5 @@
 ﻿namespace TodoApp.Dtos;
 
-public record ItemDto(string Name, long BoardId){}
+public record ItemDto(string Name, long BoardId)
+{
+}

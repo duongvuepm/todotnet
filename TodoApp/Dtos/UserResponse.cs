@@ -15,5 +15,4 @@ public class UserResponse
 
 public record RoleResponse(string Id, string Name)
 {
-    
 }

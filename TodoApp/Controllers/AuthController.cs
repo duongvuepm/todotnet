@@ -12,7 +12,6 @@ namespace TodoApp.Controllers;
 [Route("auth")]
 public class AuthController(UserManager<MyUser> userManager, TokenService tokenService) : ControllerBase
 {
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUser loginUser)
     {
@@ -28,10 +27,10 @@ public class AuthController(UserManager<MyUser> userManager, TokenService tokenS
         }
 
         var authClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, loginUser.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+        {
+            new(ClaimTypes.Name, loginUser.Email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
         var userRoles = await userManager.GetRolesAsync(user);
         foreach (var role in userRoles)

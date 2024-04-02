@@ -12,7 +12,7 @@ namespace TodoApp.Controllers;
 public class StateController(StateService stateService, TransitionService transitionService) : ControllerBase
 {
     [HttpGet]
-    public ActionResult<IEnumerable<StateResponse>> GetAllStates([FromQuery][BindRequired] long boardId)
+    public ActionResult<IEnumerable<StateResponse>> GetAllStates([FromQuery] [BindRequired] long boardId)
     {
         return Ok(stateService.GetAllStates(boardId));
     }
@@ -30,7 +30,7 @@ public class StateController(StateService stateService, TransitionService transi
 
         return CreatedAtAction(nameof(GetState), new { stateId = createdState.Id }, createdState);
     }
-    
+
     [HttpPut("{stateId}")]
     public ActionResult<StateResponse> UpdateState([FromRoute] long stateId, StateDto stateDto)
     {
@@ -40,18 +40,23 @@ public class StateController(StateService stateService, TransitionService transi
     }
 
     [HttpPut("{stateId}/AddTransition")]
-    public async Task<ActionResult<StateResponse>> AddTransition([FromBody] TransitionDto addTransition, [FromRoute] long stateId)
+    public async Task<ActionResult<StateResponse>> AddTransition([FromBody] TransitionDto addTransition,
+        [FromRoute] long stateId)
     {
-        if (addTransition.ToState == stateId) throw new InvalidStateTransitionException("Cannot transition to the same state");
+        if (addTransition.ToState == stateId)
+            throw new InvalidStateTransitionException("Cannot transition to the same state");
 
-        StateResponse updatedState = await transitionService.AddTransition(stateId, addTransition.ToState, addTransition.RoleRequired);
+        StateResponse updatedState =
+            await transitionService.AddTransition(stateId, addTransition.ToState, addTransition.RoleRequired);
         return CreatedAtAction(nameof(GetState), new { stateId = updatedState.Id }, updatedState);
     }
 
     [HttpPut("{stateId}/Transitions/{transitionId}")]
-    public async Task<ActionResult<StateResponse>> UpdateTransition([FromBody] TransitionDto addTransition, [FromRoute] long stateId, [FromRoute] long transitionId)
+    public async Task<ActionResult<StateResponse>> UpdateTransition([FromBody] TransitionDto addTransition,
+        [FromRoute] long stateId, [FromRoute] long transitionId)
     {
-        StateResponse updatedState = await transitionService.UpdateTransition(transitionId, addTransition.ToState, addTransition.RoleRequired);
+        StateResponse updatedState =
+            await transitionService.UpdateTransition(transitionId, addTransition.ToState, addTransition.RoleRequired);
         return CreatedAtAction(nameof(GetState), new { stateId }, updatedState);
     }
 }

@@ -37,6 +37,7 @@ public class ExceptionHandlingMiddleware
             ResourceAlreadyExistException ex => new ExceptionResponse(HttpStatusCode.Conflict, ex.Message),
             ResourceNotFoundException ex => new ExceptionResponse(HttpStatusCode.NotFound, ex.Message),
             UnauthorizedAccessException _ => new ExceptionResponse(HttpStatusCode.Unauthorized, "Unauthorized."),
+            ActionNotAllowedException ex => new ExceptionResponse(HttpStatusCode.Forbidden, ex.Message),
             _ => new ExceptionResponse(HttpStatusCode.InternalServerError, "Internal server error. Please retry later.")
         };
 

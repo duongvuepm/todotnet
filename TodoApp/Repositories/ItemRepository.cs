@@ -18,17 +18,22 @@ public class ItemRepository(TodoContext dbContext) : IRepository<Item, long>, IQ
 
     public Item Create(Item entity)
     {
-        return dbContext.TodoItems.Add(entity).Entity;
+        Item newItem = dbContext.TodoItems.Add(entity).Entity;
+        dbContext.SaveChanges();
+        return newItem;
     }
 
     public Item Update(Item entity)
     {
-        return dbContext.TodoItems.Update(entity).Entity;
+        Item newItem = dbContext.TodoItems.Update(entity).Entity;
+        dbContext.SaveChanges();
+        return newItem;
     }
 
     public void Delete(long id)
     {
         dbContext.TodoItems.Where(i => i.Id == id).ExecuteDelete();
+        dbContext.SaveChanges();
     }
 
     public IQueryable<Item> Query(Func<IQueryable<Item>, IQueryable<Item>> query)

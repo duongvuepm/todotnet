@@ -5,8 +5,7 @@ namespace TodoApp.Models;
 [Table("transition")]
 public class Transition
 {
-    [Column("id")]
-    public long Id { get; set; }
+    [Column("id")] public long Id { get; set; }
 
     [Column("from_state")]
     [ForeignKey("from_state_id")]
@@ -15,9 +14,9 @@ public class Transition
     [Column("to_state")]
     [ForeignKey("to_state_id")]
     public long ToStateId { get; set; }
-    
+
     public State FromState { get; set; }
-    
+
     public State ToState { get; set; }
 
     public string? RoleRequired { get; set; }

@@ -12,7 +12,6 @@ namespace TodoApp.Controllers;
 [Route("/api/boards")]
 public class BoardController(BoardService boardService) : ControllerBase
 {
-
     [HttpGet("{id}")]
     public ActionResult<BoardResponse> GetBoard(long id)
     {
@@ -21,7 +20,7 @@ public class BoardController(BoardService boardService) : ControllerBase
 
         return Ok(boardService.GetBoard(id));
     }
-    
+
     [HttpPost, Authorize(Roles = "Admin")]
     public ActionResult<BoardResponse> CreateBoard([FromBody] BoardDto boardDto)
     {
