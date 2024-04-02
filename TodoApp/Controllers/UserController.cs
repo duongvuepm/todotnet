@@ -11,27 +11,18 @@ namespace TodoApp.Controllers;
 [Route("/users")]
 public class UserController(UserService userService, AuthContext authContext) : ControllerBase
 {
-
-    [HttpGet("test")]
-    public void GetRole()
-    {
-        authContext.Roles.Where(r => r.Id == "4c6f4457-2bc8-41fa-a659-0f3251ca100b")
-            .Select(r => r.Name)
-            .SingleAsync()
-            .ContinueWith(res => Console.WriteLine(res.Result));
-    }
     
     [HttpGet("add-roles")]
-    public IActionResult AddRoles()
+    public async Task<ActionResult<IEnumerable<RoleResponse>>> AddRoles()
     {
-        userService.AddRoles();
-        return Ok();
+        var response = await userService.AddRoles();
+        return Ok(response);
     }
     
-    [HttpPost("{userId}/SetRole")]
-    public ActionResult<UserResponse> MapUserRole([FromRoute] string userId, [FromQuery] string roleId)
+    [HttpPost("SetRole")]
+    public ActionResult<UserResponse> MapUserRole([FromQuery] string userName, [FromQuery] string role)
     {
-        return Ok(userService.MapUserRole(userId, roleId));
+        return Ok(userService.SetUserRole(userName, role));
     }
     
     [HttpGet("{userId}")]

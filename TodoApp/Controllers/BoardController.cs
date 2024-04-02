@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,18 +10,19 @@ namespace TodoApp.Controllers;
 
 [ApiController]
 [Route("/api/boards")]
-// [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class BoardController(BoardService boardService) : ControllerBase
 {
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]
     public ActionResult<BoardResponse> GetBoard(long id)
     {
+        string role = User.FindFirst(ClaimTypes.Role)?.Value;
+        Console.WriteLine($"User {role}");
+
         return Ok(boardService.GetBoard(id));
     }
     
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public ActionResult<BoardResponse> CreateBoard([FromBody] BoardDto boardDto)
     {
         var createdBoar = boardService.CreateBoard(boardDto);

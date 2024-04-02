@@ -1,7 +1,8 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoApp.Dtos;
-using TodoApp.Middlewares;
 using TodoApp.Models;
 using TodoApp.Services;
 
@@ -79,12 +80,14 @@ public class TodoController([FromKeyedServices("ItemService")] ITodoItemService 
         return await todoService.DeleteTodoItem(id);
     }
     
-    [HttpPut("{id}/ChangeState")]
+    [HttpPut("{id}/ChangeState"), Authorize]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ExceptionResponse), StatusCodes.Status404NotFound)]
     public ActionResult<ItemResponse>TransitState([FromRoute] long id, [FromQuery] long nextStateId)
     {
-        ItemResponse newItemState = workflowService.TransitStateOtherWay(id, nextStateId);
+        string role = User.FindFirstValue(ClaimTypes.Role) ?? throw new UnauthorizedAccessException("Role not found");
+
+        ItemResponse newItemState = workflowService.TransitState(id, nextStateId, role);
         
         return CreatedAtAction(nameof(GetTodoItem), new { id = newItemState.Id }, newItemState);
     }

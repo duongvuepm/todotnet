@@ -44,5 +44,10 @@ public class TodoContext : DbContext
             .HasOne(t => t.ToState)
             .WithMany()
             .HasForeignKey(t => t.ToStateId);
+
+        modelBuilder.Entity<State>()
+            .HasMany(s => s.Transitions)
+            .WithOne(t => t.FromState)
+            .HasForeignKey(t => t.FromStateId);
     }
 }

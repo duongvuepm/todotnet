@@ -1,5 +1,4 @@
 ﻿using TodoApp.Dtos;
-using TodoApp.Exceptions;
 using TodoApp.Models;
 using TodoApp.Repositories;
 

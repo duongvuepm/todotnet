@@ -2,6 +2,6 @@
 
 namespace TodoApp.Dtos;
 
-public record TransitionDto([BindRequired] long ToState)
+public record TransitionDto([BindRequired] long ToState, string RoleRequired)
 {
 }

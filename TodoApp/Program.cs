@@ -1,7 +1,13 @@
 using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TodoApp.Middlewares;
 using TodoApp.Models;
@@ -10,17 +16,45 @@ using TodoApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<TodoContext>(opt =>
-    opt.UseMySQL("server=localhost;database=my_database;user=root;password=tungduong98"));
+    opt.UseMySQL("server=localhost;database=my_database;user=root;password=admin"));
+
+builder.Services.AddDbContext<AuthContext>(opt =>
+    opt.UseMySQL("server=localhost;database=my_database;user=root;password=admin"));
+builder.Services.AddIdentityCore<MyUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AuthContext>()
+    .AddApiEndpoints();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
     {
         Description = "Backend API for the Todo application",
-        Title = "TodoApi", Version = "v1", Contact = new OpenApiContact
+        Title = "TodoApi",
+        Version = "v1",
+        Contact = new OpenApiContact
         {
             Name = "Example Contact",
             Url = new Uri("https://example.com/contact")
@@ -31,43 +65,17 @@ builder.Services.AddSwaggerGen(c =>
             Url = new Uri("https://example.com/license")
         }
     });
-    
+
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
-});
 
-builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
-    .AddBearerToken(IdentityConstants.BearerScheme);
-builder.Services.AddAuthorizationBuilder();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Over18", policy =>
+    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireAuthenticatedUser();
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
     });
 });
-builder.Services.AddDbContext<AuthContext>(opt =>
-    opt.UseMySQL("server=localhost;database=my_database;user=root;password=tungduong98"));
-builder.Services.AddIdentityCore<MyUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<AuthContext>()
-    .AddApiEndpoints();
 
 builder.Services.AddScoped<TodoContext>();
 builder.Services.AddScoped<AuthContext>();
@@ -80,10 +88,12 @@ builder.Services.AddScoped<StateService>();
 builder.Services.AddScoped<BoardService>();
 builder.Services.AddScoped<TransitionService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddKeyedScoped<IRepository<Item, long>, ItemRepository>("ItemRepository");
 builder.Services.AddKeyedScoped<IRepository<Board, long>, BoardRepository>("BoardRepository");
 builder.Services.AddKeyedScoped<IRepository<State, long>, StateRepository>("StateRepository");
+builder.Services.AddScoped<IStateRepository, StateRepository>();
 builder.Services.AddKeyedScoped<IRepository<Transition, long>, TransitionRepository>("TransitionRepository");
 builder.Services.AddKeyedScoped<IRepository<MyUser, string>, UserRepository>("UserRepository");
 
@@ -121,8 +131,13 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .WithOpenApi();
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

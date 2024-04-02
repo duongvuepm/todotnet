@@ -14,10 +14,6 @@ public class State
     [Column("name", TypeName = "varchar(100)")]
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<State> Transitions { get; set; } = new List<State>();
-
-    [Column("previous_state_id")] public long? PreviousStateId { get; set; }
-
     [DefaultValue(false)]
     [Column("is_default")]
     public bool IsDefault { get; set; }
@@ -28,4 +24,6 @@ public class State
     
     [Column("board_id")]
     [ForeignKey("board_id")] public long? BoardId { get; set; }
+
+    public virtual ICollection<Transition> Transitions { get; set; } = new List<Transition>();
 }

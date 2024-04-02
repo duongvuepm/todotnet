@@ -19,4 +19,6 @@ public class Transition
     public State FromState { get; set; }
     
     public State ToState { get; set; }
+
+    public string? RoleRequired { get; set; }
 }

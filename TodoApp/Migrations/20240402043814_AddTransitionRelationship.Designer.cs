@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApp.Models;
 
@@ -10,9 +11,11 @@ using TodoApp.Models;
 namespace TodoApp.Migrations
 {
     [DbContext(typeof(TodoContext))]
-    partial class TodoContextModelSnapshot : ModelSnapshot
+    [Migration("20240402043814_AddTransitionRelationship")]
+    partial class AddTransitionRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,9 +115,6 @@ namespace TodoApp.Migrations
                     b.Property<long>("FromStateId")
                         .HasColumnType("bigint")
                         .HasColumnName("from_state");
-
-                    b.Property<string>("RoleRequired")
-                        .HasColumnType("longtext");
 
                     b.Property<long>("ToStateId")
                         .HasColumnType("bigint")

@@ -40,11 +40,18 @@ public class StateController(StateService stateService, TransitionService transi
     }
 
     [HttpPut("{stateId}/AddTransition")]
-    public ActionResult<StateResponse> AddTransition([FromBody] TransitionDto addTransition, [FromRoute] long stateId)
+    public async Task<ActionResult<StateResponse>> AddTransition([FromBody] TransitionDto addTransition, [FromRoute] long stateId)
     {
         if (addTransition.ToState == stateId) throw new InvalidStateTransitionException("Cannot transition to the same state");
 
-        StateResponse updatedState = transitionService.AddTransition(stateId, addTransition.ToState);
+        StateResponse updatedState = await transitionService.AddTransition(stateId, addTransition.ToState, addTransition.RoleRequired);
         return CreatedAtAction(nameof(GetState), new { stateId = updatedState.Id }, updatedState);
+    }
+
+    [HttpPut("{stateId}/Transitions/{transitionId}")]
+    public async Task<ActionResult<StateResponse>> UpdateTransition([FromBody] TransitionDto addTransition, [FromRoute] long stateId, [FromRoute] long transitionId)
+    {
+        StateResponse updatedState = await transitionService.UpdateTransition(transitionId, addTransition.ToState, addTransition.RoleRequired);
+        return CreatedAtAction(nameof(GetState), new { stateId }, updatedState);
     }
 }

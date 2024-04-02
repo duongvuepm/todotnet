@@ -1,4 +1,5 @@
-﻿using TodoApp.Dtos;
+﻿using Microsoft.EntityFrameworkCore;
+using TodoApp.Dtos;
 using TodoApp.Exceptions;
 using TodoApp.Models;
 
@@ -6,8 +7,9 @@ namespace TodoApp.Services;
 
 public class WorkflowService(TodoContext context)
 {
-    public ItemResponse TransitStateOtherWay(long todoId, long toStateId)
+    public ItemResponse TransitState(long todoId, long toStateId, string role)
     {
+
         var todoItem = (from todo in context.TodoItems
             where todo.Id == todoId
             select todo).Single() ?? throw new ResourceNotFoundException($"Todo item with ID {todoId} not found");
@@ -16,19 +18,20 @@ public class WorkflowService(TodoContext context)
             join tr in context.Transitions on cr.Id equals tr.FromStateId
             join next in context.States on tr.ToStateId equals next.Id
             where next.Id == toStateId && cr.Id == todoItem.StateId
-            select new {cr, next};
+            select new {cr, next, tr.RoleRequired};
 
-        if (transitionQuery.Any())
-        {
-            todoItem.StateId = toStateId;
-            context.SaveChanges();
+        var result = transitionQuery.Single() 
+                     ?? throw new InvalidStateTransitionException($"Cannot transition item {todoId} to state {toStateId}");
 
-            return new ItemResponse(todoId, todoItem.Name ?? "", toStateId);
-        }
-        else
+        var roleRequired = result.RoleRequired;
+        if (roleRequired != null && role != roleRequired)
         {
-            throw new InvalidStateTransitionException(
-                               $"Cannot transition item {todoId} to state {toStateId}");
+            throw new UnauthorizedAccessException($"Role {role} is not allowed to transition item {todoId} to state {toStateId}");
         }
+
+        todoItem.StateId = toStateId;
+        context.SaveChanges();
+
+        return new ItemResponse(todoId, todoItem.Name ?? "", toStateId);
     }
 }

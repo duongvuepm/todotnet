@@ -1,30 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TodoApp.Dtos;
-using TodoApp.Exceptions;
+﻿using TodoApp.Dtos;
 using TodoApp.Models;
+using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class StateService(TodoContext context)
+public class StateService(IStateRepository stateRepository, [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository)
 {
     public IEnumerable<StateResponse> GetAllStates(long boardId)
     {
-        var stateQuery = from s in context.States
-            join tr in context.Transitions on s.Id equals tr.FromStateId into transitions
-            where s.BoardId == boardId
-            select new StateResponse(s.Id, s.Name ?? "", transitions.Select(t => t.ToStateId).ToList());
-
-        return stateQuery.ToList();
+        return stateRepository.GetAllStates(boardId)
+            .Select(s => new StateResponse(s.Id, s.Name ?? "", s.Transitions.Select(t => t.ToStateId)))
+            .ToList();
     }
 
     public StateResponse GetState(long stateId)
     {
-        var query = from s in context.States
-            join tr in context.Transitions on s.Id equals tr.FromStateId into transitions
-                    where s.Id == stateId
-                select new StateResponse(s.Id, s.Name ?? "", transitions.Select(t => t.ToStateId).ToList());
-
-        return query.Single() ?? throw new ResourceNotFoundException($"State with ID {stateId} not found");
+        return stateRepository.GetByIdAsync(stateId)
+            .ContinueWith(res =>
+            {
+                State state = res.Result;
+                return new StateResponse(state.Id, state.Name ?? "",
+                    state.Transitions.Select(t => t.ToStateId).ToList());
+            })
+            .Result;
     }
 
     public StateResponse CreateState(StateDto stateRequest)
@@ -33,38 +31,29 @@ public class StateService(TodoContext context)
         {
             Name = stateRequest.Name ?? "",
             IsDefault = stateRequest.IsDefault,
-            BoardId = stateRequest.BoardId,
-            PreviousStateId = stateRequest.ParentStateId
+            BoardId = stateRequest.BoardId
         };
 
-        State persistedState = context.States.Add(state).Entity;
+        State persistedState = stateRepository.Create(state);
 
         if (stateRequest.ParentStateId is long fromStateId)
         {
-            context.Transitions.Add(new Transition
+            transitionRepository.Create(new Transition
             {
                 FromStateId = fromStateId,
-                ToState = persistedState
+                ToStateId = persistedState.Id
             });
         }
-        
-        context.SaveChanges();
 
         return GetState(persistedState.Id);
     }
 
     public StateResponse UpdateState(StateDto stateRequest, long stateId)
     {
-        var currentState =
-            (from s in context.States
-                where s.Id == stateId
-                select s)
-            .Single() ?? throw new ResourceNotFoundException($"State with ID {stateId} not found");
+        var currentState = stateRepository.GetById(stateId);
 
         currentState.Name = stateRequest.Name ?? currentState.Name;
-
-        context.States.Update(currentState);
-        context.SaveChanges();
+        stateRepository.Update(currentState);
 
         return GetState(stateId);
     }
