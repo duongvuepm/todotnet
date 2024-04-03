@@ -4,10 +4,10 @@ namespace TodoApp.Models;
 
 public class TodoContext : DbContext
 {
-    public DbSet<Item> TodoItems { get; set; } = null!;
-    public DbSet<State> States { get; set; } = null!;
+    public virtual DbSet<Item> TodoItems { get; set; } = null!;
+    public virtual DbSet<State> States { get; set; } = null!;
     public DbSet<Board> Boards { get; set; } = null!;
-    public DbSet<Transition> Transitions { get; set; } = null!;
+    public virtual DbSet<Transition> Transitions { get; set; } = null!;
 
     public string DbPath { get; }
 

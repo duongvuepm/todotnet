@@ -23,21 +23,6 @@ public class BoardService([FromKeyedServices("BoardRepository")] IRepository<Boa
                     (ICollection<ItemResponse>)boardWithItems.items);
             })
             .Result;
-        //return boardRepository.GetByIdAsync(id)
-        //    .ContinueWith(res =>
-        //    {
-        //        var board = res.Result;
-        //        return new BoardResponse(board.Id, board.Name, board.Description ?? "",
-        //            //board.Items.Select(i => new BoardItem
-        //            //{
-        //            //    Id = i.Id,
-        //            //    Name = i.Name ?? "",
-        //            //    StateId = i.StateId
-        //            //}).ToList()
-        //            itemRepository.GetAll().
-        //        );
-        //    })
-        //    .Result;
     }
 
     public BoardResponse CreateBoard(BoardDto boardDto)

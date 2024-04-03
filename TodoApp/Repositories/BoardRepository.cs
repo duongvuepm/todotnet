@@ -17,7 +17,7 @@ public class BoardRepository(TodoContext dbContext) : IRepository<Board, long>
             .Where(b => b.Id == id)
             .Select(b => b)
             .Include(b => b.Items)
-            .Single() ?? throw new ResourceNotFoundException($"Board with id {id} not found");
+            .SingleOrDefault() ?? throw new ResourceNotFoundException($"Board with id {id} not found");
     }
 
     public Board Create(Board entity)
