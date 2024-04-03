@@ -13,15 +13,16 @@ public class ItemService(
     public async Task<IEnumerable<ItemResponse>> GetTodoItems(long boardId)
     {
         return await itemRepository.Query(items => items.Where(i => i.BoardId == boardId))
+            .Include(i => i.State)
             .ToListAsync()
             .ContinueWith(res =>
-                res.Result.Select(item => new ItemResponse(item.Id, item.Name ?? "", item.StateId)).ToList());
+                res.Result.Select(item => new ItemResponse(item.Id, item.Name ?? "", item.StateId, item.State.Name)).ToList());
     }
 
     public Task<ItemResponse> GetTodoItem(long id)
     {
         return itemRepository.GetByIdAsync(id)
-            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId));
+            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
     }
 
     public Task<IActionResult> PutTodoItem(long id, Item item)
@@ -51,7 +52,7 @@ public class ItemService(
                 State = defaultState.Result
             })
             .ContinueWith(res => itemRepository.Create(res.Result))
-            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId));
+            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
     }
 
     public Task<IActionResult> DeleteTodoItem(long id)

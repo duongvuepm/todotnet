@@ -4,7 +4,7 @@ using TodoApp.Models;
 
 namespace TodoApp.Repositories;
 
-public class ItemRepository(TodoContext dbContext) : IRepository<Item, long>, IQueryRepository<Item>
+public class ItemRepository(TodoContext dbContext) : IRepository<Item, long>
 {
     public IEnumerable<Item> GetAll()
     {
@@ -13,7 +13,10 @@ public class ItemRepository(TodoContext dbContext) : IRepository<Item, long>, IQ
 
     public Item GetById(long id)
     {
-        return dbContext.TodoItems.Find(id) ?? throw new ResourceNotFoundException($"Item with id {id} not found");
+        return dbContext.TodoItems
+            .Where(i => i.Id == id)
+            .Include(i => i.State)
+            .SingleOrDefault() ?? throw new ResourceNotFoundException($"Item with id {id} not found");
     }
 
     public Item Create(Item entity)
