@@ -65,4 +65,9 @@ public class TodoService(TodoContext context) : ITodoItemService
 
         return new NoContentResult();
     }
+
+    public Task<ItemResponse> SetDueDate(DateOnly dueDate, long id)
+    {
+        throw new NotImplementedException();
+    }
 }

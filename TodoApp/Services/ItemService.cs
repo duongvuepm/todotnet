@@ -60,4 +60,16 @@ public class ItemService(
         return Task.Factory.StartNew(() => itemRepository.Delete(id))
             .ContinueWith<IActionResult>(_ => new NoContentResult());
     }
+
+    public async Task<ItemResponse> SetDueDate(DateOnly dueDate, long id)
+    {
+        return await itemRepository.GetByIdAsync(id)
+            .ContinueWith(res =>
+            {
+                Item currentItem = res.Result;
+                currentItem.DueDate = dueDate;
+                return itemRepository.Update(currentItem);
+            })
+            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
+    }
 }

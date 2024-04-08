@@ -93,4 +93,11 @@ public class TodoController(
 
         return CreatedAtAction(nameof(GetTodoItem), new { id = newItemState.Id }, newItemState);
     }
+
+    [HttpPut("{id}/SetDueDate"), Authorize(Roles = "Admin, Member")]
+    public async Task<ActionResult<ItemResponse>> SetDueDate([FromQuery] DateOnly dueDate, [FromRoute] long id)
+    {
+        var updatedItem = await todoService.SetDueDate(dueDate, id);
+        return Ok(updatedItem);
+    }
 }

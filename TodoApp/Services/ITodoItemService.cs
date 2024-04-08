@@ -15,4 +15,6 @@ public interface ITodoItemService
     public Task<ItemResponse> PostTodoItem(ItemDto newItemDto);
 
     public Task<IActionResult> DeleteTodoItem(long id);
+    
+    public Task<ItemResponse> SetDueDate(DateOnly dueDate, long id);
 }

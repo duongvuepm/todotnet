@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TodoApp.Models;
 
-public class TodoContext(DbContextOptions<AuthContext> options) : IdentityDbContext<MyUser>(options)
+public class TodoContext : DbContext
 {
     public virtual DbSet<Item> TodoItems { get; set; } = null!;
     public virtual DbSet<State> States { get; set; } = null!;
