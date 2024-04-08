@@ -21,6 +21,7 @@ public class ItemRepository(TodoContext dbContext) : IRepository<Item, long>
 
     public Item Create(Item entity)
     {
+        //dbContext.TodoItems.AddAsync(entity);
         Item newItem = dbContext.TodoItems.Add(entity).Entity;
         dbContext.SaveChanges();
         return newItem;

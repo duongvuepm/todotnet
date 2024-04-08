@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace TodoApp.Models;
 
-public class TodoContext : DbContext
+public class TodoContext(DbContextOptions<AuthContext> options) : IdentityDbContext<MyUser>(options)
 {
     public virtual DbSet<Item> TodoItems { get; set; } = null!;
     public virtual DbSet<State> States { get; set; } = null!;

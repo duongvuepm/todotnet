@@ -2,7 +2,7 @@
 
 namespace TodoApp.Repositories;
 
-public interface IRepository<TType, TId> : IQueryRepository<TType>
+public interface IRepository<TType, TId>
 {
     IEnumerable<TType> GetAll();
     TType GetById(TId id);

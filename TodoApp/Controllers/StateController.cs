@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoApp.Dtos;
 using TodoApp.Exceptions;
@@ -11,7 +12,7 @@ namespace TodoApp.Controllers;
 [Produces("application/json")]
 public class StateController(StateService stateService, TransitionService transitionService) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet, Authorize(Roles = "Member")]
     public ActionResult<IEnumerable<StateResponse>> GetAllStates([FromQuery] [BindRequired] long boardId)
     {
         return Ok(stateService.GetAllStates(boardId));
@@ -23,7 +24,7 @@ public class StateController(StateService stateService, TransitionService transi
         return Ok(stateService.GetState(stateId));
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Roles = "Admin")]
     public ActionResult<StateResponse> CreateState(StateDto stateDto)
     {
         StateResponse createdState = stateService.CreateState(stateDto);
