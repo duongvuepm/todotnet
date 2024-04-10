@@ -10,7 +10,7 @@ namespace TodoApp.Controllers;
 
 [ApiController]
 [Route("/api/boards")]
-public class BoardController(BoardService boardService) : ControllerBase
+public class BoardController(BoardService boardService, FilterService filterService) : ControllerBase
 {
     [HttpGet("{id}")]
     public ActionResult<BoardResponse> GetBoard(long id)
@@ -26,5 +26,13 @@ public class BoardController(BoardService boardService) : ControllerBase
     {
         var createdBoar = boardService.CreateBoard(boardDto);
         return CreatedAtAction(nameof(GetBoard), new { id = createdBoar.Id }, createdBoar);
+    }
+
+    [HttpPost("{id}/QueryItems"), Authorize(Roles = "Admin, Member")]
+    public async Task<ActionResult<ICollection<ItemResponse>>> FilterItems([FromBody] FilterRequest filterQuery,
+        [FromRoute] long id)
+    {
+        var filteredItems = await filterService.FilterItems(filterQuery, id);
+        return Ok(filteredItems);
     }
 }

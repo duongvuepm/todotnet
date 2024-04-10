@@ -30,7 +30,6 @@ public class Item
     [Column("board_id")]
     [ForeignKey("board_id")]
     public long? BoardId { get; set; }
-    
-    [Column("due_date")]
-    public DateOnly? DueDate { get; set; }
+
+    [Column("due_date")] public DateOnly? DueDate { get; set; }
 }

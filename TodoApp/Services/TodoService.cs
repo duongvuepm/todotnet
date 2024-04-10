@@ -28,12 +28,9 @@ public class TodoService(TodoContext context) : ITodoItemService
                throw new ResourceNotFoundException($"Item with id {id} not found");
     }
 
-    public async Task<IActionResult> PutTodoItem(long id, Item item)
+    public Task<ItemResponse> UpdateItem(long id, UpdateItemDto item)
     {
-        context.Entry(item).State = EntityState.Modified;
-
-        await context.SaveChangesAsync();
-        return new OkResult();
+        throw new NotImplementedException();
     }
 
     public async Task<ItemResponse> PostTodoItem(ItemDto newItemDto)

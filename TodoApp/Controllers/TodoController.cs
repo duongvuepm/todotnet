@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoApp.Dtos;
+using TodoApp.Dtos.Converters;
 using TodoApp.Models;
 using TodoApp.Services;
 
@@ -42,9 +44,9 @@ public class TodoController(
     // PUT: api/Todo/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoItem(long id, Item item)
+    public async Task<ActionResult<ItemResponse>> PutTodoItem(long id, UpdateItemDto item)
     {
-        return await todoService.PutTodoItem(id, item);
+        return await todoService.UpdateItem(id, item);
     }
 
     /// <summary>
@@ -92,12 +94,5 @@ public class TodoController(
         ItemResponse newItemState = workflowService.TransitState(id, nextStateId, role);
 
         return CreatedAtAction(nameof(GetTodoItem), new { id = newItemState.Id }, newItemState);
-    }
-
-    [HttpPut("{id}/SetDueDate"), Authorize(Roles = "Admin, Member")]
-    public async Task<ActionResult<ItemResponse>> SetDueDate([FromQuery] DateOnly dueDate, [FromRoute] long id)
-    {
-        var updatedItem = await todoService.SetDueDate(dueDate, id);
-        return Ok(updatedItem);
     }
 }

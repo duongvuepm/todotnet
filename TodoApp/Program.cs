@@ -1,9 +1,5 @@
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +11,9 @@ using TodoApp.Repositories;
 using TodoApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<TodoContext>(opt =>
@@ -89,6 +88,7 @@ builder.Services.AddScoped<BoardService>();
 builder.Services.AddScoped<TransitionService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<FilterService>();
 
 builder.Services.AddKeyedScoped<IRepository<Item, long>, ItemRepository>("ItemRepository");
 builder.Services.AddKeyedScoped<IRepository<Board, long>, BoardRepository>("BoardRepository");

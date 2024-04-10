@@ -6,7 +6,9 @@ using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class WorkflowService(TodoContext context, [FromKeyedServices("ItemRepository")] IRepository<Item, long> itemRepository)
+public class WorkflowService(
+    TodoContext context,
+    [FromKeyedServices("ItemRepository")] IRepository<Item, long> itemRepository)
 {
     public ItemResponse TransitState(long todoId, long toStateId, string role)
     {

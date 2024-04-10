@@ -4,7 +4,9 @@ using TodoApp.Repositories;
 
 namespace TodoApp.Services;
 
-public class BoardService([FromKeyedServices("BoardRepository")] IRepository<Board, long> boardRepository, [FromKeyedServices("ItemService")] ITodoItemService itemService)
+public class BoardService(
+    [FromKeyedServices("BoardRepository")] IRepository<Board, long> boardRepository,
+    [FromKeyedServices("ItemService")] ITodoItemService itemService)
 {
     public BoardResponse GetBoard(long id)
     {

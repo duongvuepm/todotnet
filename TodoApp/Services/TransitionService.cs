@@ -8,7 +8,8 @@ namespace TodoApp.Services;
 
 public class TransitionService(
     IStateRepository stateRepository,
-    [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository,
+    [FromKeyedServices("TransitionRepository")]
+    IRepository<Transition, long> transitionRepository,
     RoleManager<IdentityRole> roleManager)
 {
     public async Task<StateResponse> AddTransition(long fromState, long toState, string roleRequired)

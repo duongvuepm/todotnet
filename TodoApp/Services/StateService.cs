@@ -6,7 +6,8 @@ namespace TodoApp.Services;
 
 public class StateService(
     IStateRepository stateRepository,
-    [FromKeyedServices("TransitionRepository")] IRepository<Transition, long> transitionRepository)
+    [FromKeyedServices("TransitionRepository")]
+    IRepository<Transition, long> transitionRepository)
 {
     private readonly ILogger<StateService> _logger = new LoggerFactory().CreateLogger<StateService>();
 

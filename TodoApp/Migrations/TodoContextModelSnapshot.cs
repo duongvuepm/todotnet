@@ -37,7 +37,7 @@ namespace TodoApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("board");
+                    b.ToTable("board", (string)null);
                 });
 
             modelBuilder.Entity("TodoApp.Models.Item", b =>
@@ -76,7 +76,7 @@ namespace TodoApp.Migrations
 
                     b.HasIndex("StateId");
 
-                    b.ToTable("TodoItems");
+                    b.ToTable("TodoItems", (string)null);
                 });
 
             modelBuilder.Entity("TodoApp.Models.State", b =>
@@ -103,7 +103,7 @@ namespace TodoApp.Migrations
 
                     b.HasIndex("BoardId");
 
-                    b.ToTable("state");
+                    b.ToTable("state", (string)null);
                 });
 
             modelBuilder.Entity("TodoApp.Models.Transition", b =>
@@ -130,7 +130,7 @@ namespace TodoApp.Migrations
 
                     b.HasIndex("ToStateId");
 
-                    b.ToTable("transition");
+                    b.ToTable("transition", (string)null);
                 });
 
             modelBuilder.Entity("TodoApp.Models.Item", b =>

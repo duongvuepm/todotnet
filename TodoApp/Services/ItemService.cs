@@ -16,29 +16,32 @@ public class ItemService(
             .Include(i => i.State)
             .ToListAsync()
             .ContinueWith(res =>
-                res.Result.Select(item => new ItemResponse(item.Id, item.Name ?? "", item.StateId, item.State.Name)).ToList());
+                res.Result.Select(item =>
+                    new ItemResponse(item.Id, item.Name ?? "", item.StateId, item.State.Name, item.DueDate)).ToList());
     }
 
     public Task<ItemResponse> GetTodoItem(long id)
     {
         return itemRepository.GetByIdAsync(id)
-            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
+            .ContinueWith(res =>
+                new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
     }
 
-    public Task<IActionResult> PutTodoItem(long id, Item item)
+    public Task<ItemResponse> UpdateItem(long id, UpdateItemDto item)
     {
         return itemRepository.GetByIdAsync(id)
             .ContinueWith(res =>
             {
                 Item currentItem = res.Result;
 
-                currentItem.Name = item.Name;
-                currentItem.IsComplete = item.IsComplete;
+                currentItem.Name = item.Name ?? currentItem.Name;
+                currentItem.DueDate = item.DueDate ?? currentItem.DueDate;
 
                 return currentItem;
             })
             .ContinueWith(res => itemRepository.Update(res.Result))
-            .ContinueWith<IActionResult>(_ => new NoContentResult());
+            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId,
+                res.Result.State.Name, item.DueDate));
     }
 
     public Task<ItemResponse> PostTodoItem(ItemDto newItemDto)
@@ -52,24 +55,13 @@ public class ItemService(
                 State = defaultState.Result
             })
             .ContinueWith(res => itemRepository.Create(res.Result))
-            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
+            .ContinueWith(res =>
+                new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
     }
 
     public Task<IActionResult> DeleteTodoItem(long id)
     {
         return Task.Factory.StartNew(() => itemRepository.Delete(id))
             .ContinueWith<IActionResult>(_ => new NoContentResult());
-    }
-
-    public async Task<ItemResponse> SetDueDate(DateOnly dueDate, long id)
-    {
-        return await itemRepository.GetByIdAsync(id)
-            .ContinueWith(res =>
-            {
-                Item currentItem = res.Result;
-                currentItem.DueDate = dueDate;
-                return itemRepository.Update(currentItem);
-            })
-            .ContinueWith(res => new ItemResponse(res.Result.Id, res.Result.Name ?? "", res.Result.StateId, res.Result.State.Name));
     }
 }

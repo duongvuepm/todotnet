@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TodoApp.Models.Converters;
 
 namespace TodoApp.Models;
 
@@ -21,6 +22,9 @@ public class TodoContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Item>()
+            .Property(i => i.DueDate).HasConversion<DateConverter>();
+
         modelBuilder.Entity<State>()
             .HasMany(s => s.TodoItems)
             .WithOne(t => t.State)
