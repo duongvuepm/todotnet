@@ -7,6 +7,7 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +29,75 @@
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore" Version="8.0.1" />
         <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Dockerfile" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="linux\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux\publish\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="linux\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\publish\web.config" />
+      <_ContentIncludedByDefault Remove="win\web.config" />
+      <_ContentIncludedByDefault Remove="win\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\linux\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\linux\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\linux\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\linux\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\linux\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\linux\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\linux\publish\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\linux\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\linux\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\publish\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="win\publish\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="win\publish\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\publish\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\publish\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\publish\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="win\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="win\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="linux64\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux64\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\build\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\build\appsettings.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\build\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\build\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux64\publish\TodoApp.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="linux64\TodoApp.deps.json" />
+      <_ContentIncludedByDefault Remove="linux64\TodoApp.runtimeconfig.json" />
     </ItemGroup>
 
 </Project>

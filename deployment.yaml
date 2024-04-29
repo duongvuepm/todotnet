@@ -1,0 +1,45 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todotnet
+  labels:
+    app: todotnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todotnet
+  template:
+    metadata:
+      name: todotnet
+      labels:
+        app: todotnet
+    spec:
+      containers:
+        - name: todotnet
+          image: todotnet-linux:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+      restartPolicy: Always
+
+---
+# Path: service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: todotnet
+  labels:
+    app: todotnet
+spec:
+  selector:
+    app: todotnet
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+
